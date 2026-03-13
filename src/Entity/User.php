@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Post;
 use App\Controller\UserCreateAction;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -20,14 +21,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Post(
             uriTemplate: '/users/my',
             controller: UserCreateAction::class,
+            read: false,
             name: 'createUser',
         ),
         new Delete(),
     ],
-    normalizationContext: ['group' => ['user:read']],
-    denormalizationContext: ['group' => ['user:write']],
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
 )]
-class User
+class User implements PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -69,5 +71,9 @@ class User
         $this->password = $password;
 
         return $this;
+    }
+
+    public function getId()
+    {
     }
 }
